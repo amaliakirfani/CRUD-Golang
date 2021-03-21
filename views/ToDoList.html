@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title>To Do List</title>
+</head>
+
+<body>
+    <h1 class="mb-5">{{.title}}</h1>
+
+    <div class="card-header">
+        <button type="button" class="btn btn-primary" onclick="modal_todolist()">
+            Tambah To Do List
+        </button>
+    </div>
+
+        <!-- modal tambah todolist -->
+            <div class="col-md-12">
+                <!-- card primary -->
+                <div class="card card-primary">
+
+                    <!-- Start Modal Add todolist-->
+                    <div class="modal modal_todolist" tabindex="-1" aria-labelledby="exampleModalLabel">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Tambah todolist</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <form id="add_form" action="/todolist/add" method="POST">
+
+                                        <div class="form-group">
+                                            <label for="exampleInputPassword1">Description</label>
+                                            <input type="text" id="name" name="name" class="form-control"
+                                                id="exampleInputPassword1" placeholder="Input to do list description">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="exampleInputPassword1">Status</label>
+                                            <input type="text" id="status" name="status" class="form-control"
+                                                id="exampleInputPassword1" placeholder="Input status">
+                                        </div>
+
+                                        <!-- /.card-body -->
+
+                                        <div class="card-footer">
+                                            <button type="submit" class="btn-add btn btn-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Modal Add todolist-->
+
+                </div>
+                <!-- card primary -->
+            </div>
+        <!-- modal tambah todolist -->
+
+        <!-- modal edit todolist -->
+        <div class="col-md-12">
+            <!-- card primary -->
+            <div class="card card-primary">
+
+                <!-- Start Modal edit todolist-->
+                <div class="modal modal_edit" tabindex="-1" aria-labelledby="exampleModalLabel">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Edit To Do List</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="edit_form">
+
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Description</label>
+                                        <input type="hidden" id="id_edit" name="id" value=""/>
+                                        <input type="text" id="name_edit" value="" name="name" class="form-control" id="exampleInputEmail1" > 
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Status</label>
+                                        <input type="text" id="status_edit" name="status" class="form-control"
+                                            id="exampleInputPassword1" placeholder="Input status">
+                                    </div>
+
+                                    <!-- /.card-body -->
+
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn-add btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Modal Add todolist-->
+
+            </div>
+            <!-- card primary -->
+        </div>
+    <!-- modal edit todolist -->
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Created At</th>
+                <th scope="col">Updated At</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="ToDoList">
+
+        </tbody>
+    </table>
+</body>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+</script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+</script>
+
+<script>
+        $('#add_form').on('submit', function (e) {
+        e.preventDefault();
+            var data=JSON.stringify({
+                name: $("#name").val(),
+                status: $("#status").val()
+            })
+        // return console.log('tes')
+        $.ajax({
+            url: "/todolist/add",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: data,
+            dataType:"json",
+            beforeSend: function () {
+                $('.btn-add').attr("disabled", true);
+                $('.btn-add').html("Loading...");
+            },
+            success: function (res) {
+                alert("Berhasil !!")
+                GetToDoList()
+                $('.modal_todolist').modal('hide')
+                $('.btn-add').attr("disabled", false);
+                $('.btn-add').html("submit");
+                $('#add_form').trigger('reset')
+            }
+        })
+    })
+
+    function modal_todolist() {
+        $('.modal_todolist').modal('show')
+    }
+
+    function GetToDoList() {
+        $.ajax({
+            url: "/todolist",
+            method: "GET",
+            beforeSend: function () {
+                $('#ToDoList').html('')
+            }
+        }).then((res) => {
+            console.log(res)
+
+            res.data.forEach(element => {
+                var html = `
+                    <tr>
+                        <td>
+                            ` + element.id + `
+                        </td>
+                        <td>
+                            ` + element.name + `
+                        </td>
+                        <td>
+                            ` + element.created_at + `
+                        </td>
+                        <td>
+                            ` + element.updated_at + `
+                        </td>
+                        <td>
+                            ` + element.status + `
+                        </td>
+                        <td>
+                            <button onclick="delete_todolist('` + element.id + `')" class='btn btn-sm btn-danger'>Delete</button>
+                            <button onclick="edit_todolist('` + element.id + `')" class='btn btn-sm btn-warning'>Edit</button>
+                        </td>
+                    </tr>
+                `
+                $('#ToDoList').append(html)
+            });
+        })
+    }
+
+    $(document).ready(function () {
+        GetToDoList()
+    })
+
+    function delete_todolist(id) {
+            $.ajax({
+                url: "/todolist/delete/" + id,
+                method: "DELETE",
+                    success: function (res) {
+                    alert("Deleted")
+                    GetToDoList()
+                }
+            })
+        
+    return
+    }
+
+    function edit_todolist(id) {
+            $.ajax({
+                url: "/todolist/edit/" + id,
+                method: "GET",
+                    success: function (res) {
+                    $('#id_edit').val(res.data.id)
+                    $('#name_edit').val(res.data.name)
+                    $('#status_edit').val(res.data.status)
+                    $('.modal_edit').modal('show')
+                    console.log(res)
+                    // alert("Updated")
+                    // GetToDoList()
+                }
+            })
+        
+    return
+    }
+</script>
+
+</html>
