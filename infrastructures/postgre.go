@@ -12,14 +12,14 @@ var (
 	port     = 5432
 	user     = "amalia"
 	password = "123"
-	dbname   = "todolist"
+	dbname   = "erp"
 )
 
 var psqlInfo = fmt.Sprintf("host=%s port=%d user=%s "+
 	"password=%s dbname=%s sslmode=disable",
 	host, port, user, password, dbname)
 
-func ToDoListConn() *dbr.Session {
+func AttendanceConn() *dbr.Session {
 
 	conn, err := dbr.Open("postgres", psqlInfo, nil)
 	if err != nil {

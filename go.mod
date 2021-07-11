@@ -1,4 +1,4 @@
-module ToDoList
+module AttendanceApi
 
 go 1.16
 
